@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect} from 'react';
 import './App.css';
+import Articles from './components/Articles/Articles'
+import {connect} from "react-redux";
+import {getArticle} from "./redux/articleReducer";
+import Preloader from "./components/common/Preloader";
+import ErrorMessage from "./components/common/ErrorMessage";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = ({getArticle, isFetching, isError, errorMessage, ...props}) => {
+    const content = isFetching ? <Preloader/> : <Articles {...props}/>
+    useEffect(() => {
+        getArticle(5)
+    }, []);
+    return (
+        <main>
+            {isError ? <ErrorMessage>{errorMessage}</ErrorMessage> : content}
+        </main>
+    )
 }
-
-export default App;
+const mapStateToProps = (state) => {
+    return {
+        articles: state.article.articles,
+        isFetching: state.article.isFetching,
+        isError: state.article.isError,
+        errorMessage: state.article.errorMessage
+    }
+}
+export default connect(mapStateToProps, {getArticle})(App);
